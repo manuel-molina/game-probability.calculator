@@ -28,16 +28,19 @@ public class GPCController {
 
     @GetMapping(value = "/bets/{nodeId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<GameBetNode> getRacePlayerByNodeId(@PathVariable String nodeId) {
+    public ResponseEntity<?> getRacePlayerByNodeId(@PathVariable String nodeId, @RequestParam(required = false, defaultValue = "false") Boolean asText) {
         GameBetNode gbn = gameBetService.getById(nodeId);
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(HttpHeaders.CONTENT_TYPE, "application/json; charset=utf-8");
 
         if (gbn != null) {
+            if (asText) {
+                return new ResponseEntity<>(gbn.toString(), httpHeaders, HttpStatus.NOT_FOUND);
+            }
             return new ResponseEntity<>(gbn, httpHeaders, HttpStatus.OK);
         }
 
-        return new ResponseEntity<>(gbn, httpHeaders, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>("", httpHeaders, HttpStatus.NOT_FOUND);
     }
 }

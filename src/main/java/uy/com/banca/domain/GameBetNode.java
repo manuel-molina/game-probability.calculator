@@ -82,6 +82,26 @@ public class GameBetNode {
         }
     }
 
+    public String toString() {
+        StringBuilder buffer = new StringBuilder(50);
+        print(buffer, "", "");
+        return buffer.toString();
+    }
+
+    private void print(StringBuilder buffer, String prefix, String childrenPrefix) {
+        buffer.append(prefix);
+        buffer.append(raceCounter)
+              .append(" G[").append(betsForWin).append(": ").append(probabilityToWin)
+              .append("] P[").append(betsForLose).append(": ").append(probabilityToLose).append("]");
+        buffer.append('\n');
+        if (nodeWinner != null) {
+            nodeWinner.print(buffer, childrenPrefix + "├── ", childrenPrefix + "│   ");
+        }
+        if (nodeLoser != null) {
+            nodeLoser.print(buffer, childrenPrefix + "└── ", childrenPrefix + "    ");
+        }
+    }
+
     public String getId() {
         return id;
     }
