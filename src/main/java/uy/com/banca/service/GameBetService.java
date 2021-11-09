@@ -3,6 +3,8 @@ package uy.com.banca.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uy.com.banca.domain.GameBetNode;
+import uy.com.banca.exception.HttpInternalErrorException;
+import uy.com.banca.exception.HttpNotFoundException;
 import uy.com.banca.repository.GameBetRepository;
 
 import java.util.List;
@@ -16,7 +18,7 @@ public class GameBetService {
     /*Getting a specific gameBetNode by gameBetNode id from collection*/
     public GameBetNode getById(String gameBetId) {
         Optional<GameBetNode> gameBetNode = gameBetNodeRepo.findById(gameBetId);
-        return gameBetNode.orElse(null);
+        return gameBetNode.orElseThrow(HttpNotFoundException::new);
 
     }
 
@@ -36,18 +38,26 @@ public class GameBetService {
 
     /*Adding/inserting an gameBetNode into collection*/
     public GameBetNode addGameBetNode(Double percent, Long races) {
-        GameBetNode gameBetNode = new GameBetNode(percent, races);
-        gameBetNode.generateChildRaceBets();
+        try {
+            GameBetNode gameBetNode = new GameBetNode(percent, races);
+            gameBetNode.generateChildRaceBets();
 
-        return gameBetNodeRepo.save(gameBetNode);
+            return gameBetNodeRepo.save(gameBetNode);
+        } catch (Exception e) {
+            throw new HttpInternalErrorException();
+        }
     }
 
     /*delete an gameBetNode from collection*/
     public int deleteById(String nodeId) {
-        Optional<GameBetNode> gameBetNode = gameBetNodeRepo.findById(nodeId);
-        if (gameBetNode.isPresent()) {
-            gameBetNodeRepo.delete(gameBetNode.get());
-            return 1;
+        try {
+            Optional<GameBetNode> gameBetNode = gameBetNodeRepo.findById(nodeId);
+            if (gameBetNode.isPresent()) {
+                gameBetNodeRepo.delete(gameBetNode.get());
+                return 1;
+            }
+        } catch (Exception e) {
+            throw new HttpInternalErrorException();
         }
 
         return -1;
